@@ -4,8 +4,14 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const CategorySchema = new Schema({
-  name: { type: String, required: true },
+  name: {
+    type: String,
+    required: true,
+    enum: ['PC Games', 'Console Games', 'Mobile Games'],
+    default: 'PC Games',
+  },
   description: String,
+  items: [{ type: Schema.ObjectId, ref: 'Item' }],
 });
 
 // Virtual for this category instance URL.
