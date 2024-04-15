@@ -185,6 +185,8 @@ const createItems = async () => {
     },
     // ... add 2 more mobile-only games with similar structure (optional)
   ];
+
+  await Item.insertMany(mobileGames);
 };
 
 const updateCategories = async (categories) => {

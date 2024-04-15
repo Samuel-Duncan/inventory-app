@@ -2,13 +2,12 @@ const express = require('express');
 
 const router = express.Router();
 
+const homePageController = require('../controllers/homePageController');
 const categoryController = require('../controllers/categoryController');
 const itemController = require('../controllers/itemController');
 
 /* GET inventory page. */
-router.get('/', (req, res, next) => {
-  res.render('inventory', { title: 'Whole Inventory' });
-});
+router.get('/', homePageController.index);
 
 // CATEGORY ROUTES //
 // GET request for creating a Category.
@@ -16,13 +15,13 @@ router.get('/', (req, res, next) => {
 router.get('/category/create', categoryController.category_create_get);
 
 // POST request for creating Book.
-router.get('/category/create', categoryController.category_create_post);
+router.post('/category/create', categoryController.category_create_post);
 
 // GET request to delete Category
 router.get('/category/:id/delete', categoryController.category_delete_get);
 
 // POST request to delete Category
-router.get('/category/:id/delete', categoryController.category_delete_post);
+router.post('/category/:id/delete', categoryController.category_delete_post);
 
 // GET request to update Category
 router.get('/category/:id/update', categoryController.category_update_get);
@@ -48,7 +47,7 @@ router.post('/item/create', itemController.item_create_post); // Changed GET to 
 router.get('/item/:id/delete', itemController.item_delete_get);
 
 // POST request to delete Item
-router.get('/item/:id/delete', itemController.item_delete_post);
+router.post('/item/:id/delete', itemController.item_delete_post);
 
 // GET request to update Item
 router.get('/item/:id/update', itemController.item_update_get);

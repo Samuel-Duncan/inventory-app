@@ -3,7 +3,14 @@ const Category = require('../models/category');
 
 // Display list of all Categories
 exports.category_list = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Category list');
+  const allCategories = await Category.find({}, 'name, description')
+    .sort({ name: 1 })
+    .exec();
+
+  res.render('category_list', {
+    title: 'Category List',
+    category_list: allCategories,
+  });
 });
 
 // Display detail page for a specific Category
@@ -13,7 +20,7 @@ exports.category_detail = asyncHandler(async (req, res, next) => {
 
 // Display Category create form on GET.
 exports.category_create_get = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Author create GET');
+  res.send('NOT IMPLEMENTED: Category create GET');
 });
 
 // Handle Category create on POST.
