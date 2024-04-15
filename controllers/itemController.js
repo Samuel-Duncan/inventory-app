@@ -3,9 +3,9 @@ const Item = require('../models/item');
 
 // Display list of all Items
 exports.item_list = asyncHandler(async (req, res, next) => {
-  const allItems = await Item.find({}, 'name, category')
+  const allItems = await Item.find({}, { name: 1 })
     .sort({ name: 1 })
-    .populate('category')
+    .populate('category', { name: 1 })
     .exec();
 
   console.log(allItems);
