@@ -6,7 +6,7 @@ block content
     ul
       each category in category_list
         li
-          a(href=category.url) #{category.name}
+          a(href=`/inventory${category.url}` class="text-blue-700 hover:text-blue-800") #{category.name}
 
   else
     p There are no categories.
