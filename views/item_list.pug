@@ -7,7 +7,7 @@ block content
       each item in item_list
         li
           console.log(item)
-          a(href=`/inventory${item.url}` class="text-blue-700 hover:text-blue-800") #{item.name} 
+          a(href=item.url class="text-blue-700 hover:text-blue-800") #{item.name} 
           | (#{item.category.name})
 
   else
