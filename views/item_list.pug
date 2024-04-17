@@ -8,7 +8,8 @@ block content
         each item in item_list
           li
             a(href=item.url class="text-blue-700 hover:text-blue-800") #{item.name} 
-            | (#{item.category.name})
+            each category in item.categories
+              span (#{category.name.split(' ')[0]})
 
     else
       p There are no items.

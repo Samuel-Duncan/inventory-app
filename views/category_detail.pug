@@ -3,12 +3,13 @@ extends layout
 block content 
   h1(class="text-4xl") Category: #{category.name}
 
-  h2 Games: 
-  if category.items.length
-    ul 
-      each item in category.items 
-        li
-          a(href=item.url class="text-blue-700 hover:text-blue-800") #{item.name} 
+  div(class="space-y-0")
+    h2(class="text-2xl") Games: 
+    if category.items.length
+      ul 
+        each item in category.items 
+          li
+            a(href=item.url class="text-blue-700 hover:text-blue-800") #{item.name} 
 
-  else
-    p There are no items.
+    else
+      p There are no items.

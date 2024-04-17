@@ -22,7 +22,7 @@ const ItemSchema = new Schema({
     required: [true, 'Item quantity is required.'],
   },
   images: [ImageSchema],
-  category: { type: Schema.ObjectId, ref: 'Category' },
+  categories: [{ type: Schema.ObjectId, ref: 'Category' }],
 });
 
 // Virtual for this item instance URL.

@@ -5,7 +5,7 @@ const Item = require('../models/item');
 exports.item_list = asyncHandler(async (req, res, next) => {
   const allItems = await Item.find({}, { name: 1 })
     .sort({ name: 1 })
-    .populate('category', { name: 1 })
+    .populate('categories', { name: 1 })
     .exec();
 
   console.log(allItems);
@@ -14,7 +14,7 @@ exports.item_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for a specific Item
 exports.item_detail = asyncHandler(async (req, res, next) => {
-  const item = await Item.findById(req.params.id).populate('category').exec();
+  const item = await Item.findById(req.params.id).populate('categories').exec();
 
   if (item === null) {
     const err = new Error('Item not found');

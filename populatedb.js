@@ -15,7 +15,6 @@ const main = async () => {
 
   await createCategories();
   await createItems();
-  // ... (your existing code from populateDB.js goes here) ...
 
   // Call the update function after item creation
   const categories = await Category.find({});
@@ -64,13 +63,10 @@ const createItems = async () => {
   // await Category.deleteMany({});
   // await Item.deleteMany({});
 
-  // Get categories by name (assuming categories are already populated)
-  const pcCategory = await Category.findOne({ name: 'PC Games' });
-  const consoleCategory = await Category.findOne({ name: 'Console Games' });
-  const mobileCategory = await Category.findOne({ name: 'Mobile Games' });
+  // Get all categories
+  const categories = await Category.find({});
 
-  // Create and save PC-only games
-  const pcGames = [
+  const items = [
     {
       name: 'The Witcher 3: Wild Hunt',
       description:
@@ -80,7 +76,7 @@ const createItems = async () => {
       images: [
         { url: 'https://i.pinimg.com/originals/49/c7/2d/49c72d80f7cdd7fc25df51c77d7fd0dc.jpg' }, // Replace with actual image URLs
       ],
-      category: pcCategory._id,
+      categories: [categories[0]._id],
     },
     {
       name: 'Elden Ring',
@@ -91,7 +87,7 @@ const createItems = async () => {
       images: [
         { url: 'https://www.chromethemer.com/download/hd-wallpapers/elden-ring-2560x1440.jpg' }, // Replace with actual image URLs
       ],
-      category: pcCategory._id,
+      categories: [categories[0]._id],
     },
     {
       name: 'Hollow Knight',
@@ -102,14 +98,8 @@ const createItems = async () => {
       images: [
         { url: 'https://i.pinimg.com/originals/be/6c/a7/be6ca75c943aec7d4fbd4dd3c9173a9a.jpg' }, // Replace with actual image URLs
       ],
-      category: pcCategory._id,
+      categories: [categories[0]._id],
     },
-  ];
-
-  await Item.insertMany(pcGames);
-
-  // Create and save console-only games
-  const consoleGames = [
     {
       name: 'God of War',
       description:
@@ -119,7 +109,7 @@ const createItems = async () => {
       images: [
         { url: 'https://www.digitaltrends.com/wp-content/uploads/2022/01/god-of-war-pc-performance-1.jpg?fit=2560%2C1440&p=1' }, // Replace with actual image URLs
       ],
-      category: consoleCategory._id,
+      categories: [categories[1]._id],
     },
     {
       name: 'Horizon Zero Dawn',
@@ -130,7 +120,7 @@ const createItems = async () => {
       images: [
         { url: 'https://i.pinimg.com/originals/1d/ef/8e/1def8e6b9c051d92a0fd6dc0b211fe03.jpg' }, // Replace with actual image URLs
       ],
-      category: consoleCategory._id,
+      categories: [categories[1]._id],
     },
     {
       name: 'Super Mario Odyssey',
@@ -141,15 +131,8 @@ const createItems = async () => {
       images: [
         { url: 'https://i0.wp.com/awardsradar.com/wp-content/uploads/2023/04/the-super-mario-bros-movie-poster-4k-wallpaper-scaled-1.jpg?fit=2560%2C1440&ssl=1' }, // Replace with actual image URLs
       ],
-      category: consoleCategory._id,
+      categories: [categories[1]._id],
     },
-    // ... add 2 more console-only games with similar structure (optional)
-  ];
-
-  await Item.insertMany(consoleGames);
-
-  // Create and save mobile-only games
-  const mobileGames = [
     {
       name: 'Genshin Impact',
       description:
@@ -159,7 +142,7 @@ const createItems = async () => {
       images: [
         { url: 'https://cdn1.epicgames.com/salesEvent/salesEvent/EGS_GenshinImpact_miHoYoLimited_S1_2560x1440-91c6cd7312cc2647c3ebccca10f30399' }, // Replace with actual image URLs
       ],
-      category: mobileCategory._id,
+      categories: [categories[2]._id],
     },
     {
       name: 'Pokemon Go',
@@ -170,7 +153,7 @@ const createItems = async () => {
       images: [
         { url: 'https://wallpapercave.com/wp/wp1826515.jpg' }, // Replace with actual image URLs
       ],
-      category: mobileCategory._id,
+      categories: [categories[2]._id],
     },
     {
       name: 'Call of Duty: Mobile',
@@ -181,22 +164,21 @@ const createItems = async () => {
       images: [
         { url: 'https://wallpapers.com/images/hd/4k-call-of-duty-mobile-poster-5c50tuqihdfcliuz.jpg' }, // Replace with actual image URLs
       ],
-      category: mobileCategory._id,
+      categories: [categories[2]._id],
     },
-    // ... add 2 more mobile-only games with similar structure (optional)
   ];
 
-  await Item.insertMany(mobileGames);
+  await Item.insertMany(items);
 };
 
 const updateCategories = async (categories) => {
   // Use async/await with Promise.all for parallel updates
   await Promise.all(categories.map(async (category) => {
     // Find items belonging to this category
-    const categoryItems = await Item.find({ category: category._id });
+    const categoryItems = await Item.find({ categories: category._id });
 
-    // Update the category's items array with item IDs
-    category.items = categoryItems.map((item) => item._id);
+    // Update the category's items array with item IDs (handle empty case)
+    category.items = categoryItems.length > 0 ? categoryItems.map((item) => item._id) : [];
 
     // Save the updated category
     await category.save();
