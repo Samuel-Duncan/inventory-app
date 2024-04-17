@@ -15,4 +15,4 @@ block content
     p #[strong Quantity: ] #{item.quantity}
     if item.categories.length 
       each category in item.categories
-        p #[strong Category: ] #{category.name}
+        p #[strong Platforms: ] #{category.name.split(' ')[0]}

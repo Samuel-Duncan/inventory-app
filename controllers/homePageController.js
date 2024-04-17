@@ -11,7 +11,7 @@ exports.index = asyncHandler(async (req, res, next) => {
   ]);
 
   res.render('index', {
-    title: 'Inventory',
+    title: 'Game Inventory App',
     category_count: numCategories,
     item_count: numItems,
   });
