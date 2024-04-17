@@ -1,13 +1,14 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #[em Inventory App], a very basic express website.
+  div(class="space-y-0")
+    h1(class="text-4xl") #{title} App
+    p Welcome to #[em Inventory App], a very basic express website.
 
-  h1 Inventory Count
+  div(class="space-y-0")
+    h2(class="text-2xl") Inventory Count
+    p The inventory has the following counts: 
 
-  p The inventory has the following counts: 
-
-  ul 
-    li #[strong Categories:] !{category_count}
-    li #[strong Items:] !{item_count}
+    ul 
+      li #[strong Categories:] !{category_count}
+      li #[strong Items:] !{item_count}

@@ -1,0 +1,16 @@
+extends layout 
+
+block content 
+  h1(class="text-4xl") #{item.name}
+
+  div(class="space-y-0")
+    p #[strong Description: ] #{item.description}
+    p #[strong Price: ] $#{item.price}
+    p #[strong Quantity: ] #{item.quantity}
+    p #[strong Category: ] #{item.category.name}
+
+  if item.images.length 
+    each image in item.images
+      ul 
+        li 
+          img(src=image.url alt=`${item.name} picture ${index + 1}`)

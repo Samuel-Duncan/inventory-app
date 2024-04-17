@@ -1,14 +1,14 @@
 extends layout
 
 block content
-  h1= title
-  if item_list.length
-    ul
-      each item in item_list
-        li
-          console.log(item)
-          a(href=item.url class="text-blue-700 hover:text-blue-800") #{item.name} 
-          | (#{item.category.name})
+  div(class="space-y-2")
+    h1(class="text-4xl")= title
+    if item_list.length
+      ul
+        each item in item_list
+          li
+            a(href=item.url class="text-blue-700 hover:text-blue-800") #{item.name} 
+            | (#{item.category.name})
 
-  else
-    p There are no items.
+    else
+      p There are no items.
