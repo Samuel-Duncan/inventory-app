@@ -1,0 +1,33 @@
+extends layout 
+
+block content 
+  h1(class="text-4xl")= title 
+
+  form(method='POST')
+    div(class="space-x-2")
+      label(for='name') Name: 
+      input#name(type='text', placeholder='Name of game' name='name' required value=(undefined===item ? '' : item.name))
+    div(class="space-x-2")
+      label(for='description') Description: 
+      input#description(type='text', placeholder='Description of game' name='description' required value=(undefined===item ? '' : item.description))
+    div(class="space-x-2")
+      label(for='price') Price:
+      input#price(type='number', placeholder='Enter price (e.g., 19.99)' name='price' required value=(undefined===item ? '' : item.price))
+    div(class="space-x-2")
+      label(for='quantity') Quantity:
+      input#quantity(type='number', min='1', placeholder='Number in stock' name='quantity' required value=(undefined===item ? '' : item.quantity))
+    div
+      label Category: 
+      div 
+        for category in categories 
+          if category.checked 
+            input(type='checkbox', name='category', id=category._id, value=category._id, checked)
+          else
+            input(type='checkbox', name='category', id=category._id, value=category._id)
+            label(for=category._id) &nbsp;#{category.name}
+    button(type='submit') Submit
+
+  if errors
+    ul
+      for error in errors
+        li!= error.msg
