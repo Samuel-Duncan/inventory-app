@@ -13,6 +13,6 @@ block content
     p #[strong Description: ] #{item.description}
     p #[strong Price: ] $#{item.price}
     p #[strong Quantity: ] #{item.quantity}
-    if item.categories.length 
-      each category in item.categories
-        p #[strong Platforms: ] #{category.name.split(' ')[0]}
+    p #[strong Platforms: ] 
+      if item.categories.length
+        = item.categories.map(category => category.name.split(' ')[0]).join(', ')
