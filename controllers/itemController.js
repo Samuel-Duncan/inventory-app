@@ -45,7 +45,7 @@ exports.item_create_post = [
   // Convert the categories to an array
   (req, res, next) => {
     if (!Array.isArray(req.body.category)) {
-      req.body.categories = typeof req.body.categories === 'undefined' ? [] : [req.body.category];
+      req.body.category = typeof req.body.category === 'undefined' ? [] : [req.body.category];
     }
     next();
   },
@@ -93,11 +93,9 @@ exports.item_create_post = [
     if (!errors.isEmpty()) {
       const allCategories = await Category.find().sort({ name: 1 }).exec();
 
-      for (const category of allCategories) {
-        if (item.categories.includes(category._id)) {
-          category.checked = 'true';
-        }
-      }
+      allCategories.forEach((category) => {
+        category.checked = item.categories.includes(category._id) ? 'true' : undefined;
+      });
       res.render('item_form', {
         title: 'Create Game',
         categories: allCategories,
@@ -106,6 +104,14 @@ exports.item_create_post = [
       });
     } else {
       await item.save();
+      // Update relevant categories (after successful save)
+      const updatedCategories = await Promise.all(
+        item.categories.map(async (categoryId) => await Category.findByIdAndUpdate(
+          categoryId,
+          { $push: { items: item._id } },
+          { new: true }, // Return the updated document
+        )),
+      );
       res.redirect(item.url);
     }
   }),

@@ -14,7 +14,7 @@ const ItemSchema = new Schema({
     maxLength: [50, 'Item name must not exceed 50 characters.'],
     required: [true, 'Item name is required.'],
   },
-  description: { type: String, minLength: 50, maxLength: 280 },
+  description: { type: String, minLength: 20, maxLength: 280 },
   price: { type: Number, required: [true, 'Item price is required.'] },
   quantity: {
     type: Number,
