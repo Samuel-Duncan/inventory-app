@@ -120,7 +120,7 @@ exports.category_delete_post = asyncHandler(async (req, res, next) => {
   } else {
     // category has no items. delete object and redirect to the list of categories
     await Category.findByIdAndDelete(req.body.categoryid);
-    res.redirect('inventory/categories');
+    res.redirect('/inventory/categories');
   }
 });
 
