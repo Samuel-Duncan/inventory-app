@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const { body, validationResult } = require('express-validator');
 
 const Category = require('../models/category');
+const Item = require('../models/item');
 
 // Display list of all Categories
 exports.category_list = asyncHandler(async (req, res, next) => {
@@ -83,12 +84,44 @@ exports.category_create_post = [
 
 // Display Category delete form on GET.
 exports.category_delete_get = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Category delete GET');
+  // get details of category and all their items (in parallel)
+  const [category, allItemsInCategory] = await Promise.all([
+    Category.findById(req.params.id).exec(),
+    Item.find({ categories: req.params.id }, 'name description').exec(),
+  ]);
+
+  if (category === null) {
+    // no results
+    res.redirect('/inventory/categories');
+  }
+
+  res.render('category_delete', {
+    title: 'Delete Category',
+    category,
+    category_items: allItemsInCategory,
+  });
 });
 
 // Handle Category delete on POST.
 exports.category_delete_post = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Category delete POST');
+  // get details of category and all their items (in parallel)
+  const [category, allItemsInCategory] = await Promise.all([
+    Category.findById(req.params.id).exec(),
+    Item.find({ categories: req.params.id }, 'name description').exec(),
+  ]);
+
+  if (allItemsInCategory.length > 0) {
+    // Category has items, render in same way as for get route
+    res.render('category_delete', {
+      title: 'Delete Category',
+      category,
+      category_items: allItemsInCategory,
+    });
+  } else {
+    // category has no items. delete object and redirect to the list of categories
+    await Category.findByIdAndDelete(req.body.categoryid);
+    res.redirect('inventory/categories');
+  }
 });
 
 // Display Category update form on GET.
