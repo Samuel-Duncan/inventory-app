@@ -103,16 +103,26 @@ exports.item_create_post = [
         errors: errors.array(),
       });
     } else {
-      await item.save();
-      // Update relevant categories (after successful save)
-      const updatedCategories = await Promise.all(
-        item.categories.map(async (categoryId) => await Category.findByIdAndUpdate(
-          categoryId,
-          { $push: { items: item._id } },
-          { new: true }, // Return the updated document
-        )),
-      );
-      res.redirect(item.url);
+      // Check if Item with same name already exists
+      const itemExists = await Item
+        .findOne({ name: req.body.name })
+        .collation({ locale: 'en', strength: 2 })
+        .exec();
+      if (itemExists) {
+        // item exists redirect to its detail page
+        res.redirect(itemExists.url);
+      } else {
+        await item.save();
+        // Update relevant categories (after successful save)
+        const updatedCategories = await Promise.all(
+          item.categories.map(async (categoryId) => await Category.findByIdAndUpdate(
+            categoryId,
+            { $push: { items: item._id } },
+            { new: true }, // Return the updated document
+          )),
+        );
+        res.redirect(item.url);
+      }
     }
   }),
 ];

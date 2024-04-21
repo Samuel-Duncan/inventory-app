@@ -7,8 +7,6 @@ const CategorySchema = new Schema({
   name: {
     type: String,
     required: true,
-    enum: ['PC Games', 'Console Games', 'Mobile Games'],
-    default: 'PC Games',
   },
   description: String,
   items: [{ type: Schema.ObjectId, ref: 'Item' }],
