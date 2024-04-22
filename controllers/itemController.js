@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 const asyncHandler = require('express-async-handler');
 const { body, validationResult } = require('express-validator');
 
@@ -11,7 +12,6 @@ exports.item_list = asyncHandler(async (req, res, next) => {
     .populate('categories', { name: 1 })
     .exec();
 
-  console.log(allItems);
   res.render('item_list', { title: 'Item List', item_list: allItems });
 });
 
@@ -76,7 +76,8 @@ exports.item_create_post = [
     .withMessage('Item quantity must be a whole number (minimum 1).')
     .notEmpty()
     .withMessage('Item quantity is required.'),
-  body('categories.*').escape(),
+  body('categories.*')
+    .escape(),
 
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
@@ -115,6 +116,7 @@ exports.item_create_post = [
         await item.save();
         // Update relevant categories (after successful save)
         const updatedCategories = await Promise.all(
+          // eslint-disable-next-line no-return-await
           item.categories.map(async (categoryId) => await Category.findByIdAndUpdate(
             categoryId,
             { $push: { items: item._id } },
@@ -152,10 +154,119 @@ exports.item_delete_post = asyncHandler(async (req, res, next) => {
 
 // Display Item update form on GET.
 exports.item_update_get = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Item update GET');
+  const item = await Item.findById(req.params.id).populate('categories').exec();
+  const allCategories = await Category.find().sort({ name: 1 }).exec();
+
+  if (item === null) {
+    // no results
+    const err = new Error('Item not found');
+    err.status = 404;
+    return next(err);
+  }
+
+  allCategories.forEach((category) => {
+    category.checked = item.categories.includes(category._id) ? 'true' : undefined;
+  });
+  res.render('item_form', {
+    title: 'Update Game',
+    categories: allCategories,
+    item,
+  });
 });
 
 // Handle Item update on POST.
-exports.item_update_post = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Item update POST');
-});
+exports.item_update_post = [
+  // Convert the categories to an array
+  (req, res, next) => {
+    if (!Array.isArray(req.body.category)) {
+      req.body.category = typeof req.body.category === 'undefined' ? [] : [req.body.category];
+    }
+    next();
+  },
+
+  // Validate and sanitize fields
+  body('name')
+    .trim() // Trim leading/trailing whitespace
+    .notEmpty()
+    .withMessage('Item name is required.')
+    .isLength({ min: 3, max: 50 })
+    .withMessage('Item name must be between 3 and 50 characters.')
+    .escape(), // Basic sanitization to prevent XSS,
+  body('description')
+    .trim()
+    .notEmpty()
+    .withMessage('Item description is required.')
+    .isLength({ min: 20, max: 1000 })
+    .withMessage('Description must be between 20 and 1000 characters.')
+    .escape(), // Consider extending max length if needed,
+  body('price')
+    .isNumeric()
+    .withMessage('Item price must be a number.')
+    .notEmpty()
+    .withMessage('Item price is required.')
+    .custom((value) => value >= 0 || 'Item price must be non-negative'),
+  body('quantity')
+    .isInt({ min: 1 })
+    .withMessage('Item quantity must be a whole number (minimum 1).')
+    .notEmpty()
+    .withMessage('Item quantity is required.'),
+  body('categories.*')
+    .escape(),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    // Create an Item object with escaped and trimmed data.
+    const item = new Item({
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      quantity: req.body.quantity,
+      categories: req.body.category,
+      _id: req.params.id,
+    });
+
+    if (!errors.isEmpty()) {
+      const allCategories = await Category.find().sort({ name: 1 }).exec();
+
+      allCategories.forEach((category) => {
+        category.checked = item.categories.includes(category._id) ? 'true' : undefined;
+      });
+      res.render('item_form', {
+        title: 'Update Game',
+        categories: allCategories,
+        item,
+        errors: errors.array(),
+      });
+    } else {
+      const [updatedItem, allCategories] = await Promise.all([
+        Item.findByIdAndUpdate(req.params.id, item, {}),
+        Category.find().sort({ name: 1 }).exec(),
+      ]);
+
+      // eslint-disable-next-line no-unused-expressions
+      allCategories.forEach(async (category) => {
+        if (item.categories.includes(category._id)) {
+          // Item needs to be in this category
+          if (!category.items.includes(item._id)) {
+            return Category.findByIdAndUpdate(
+              category._id,
+              { $push: { items: item._id } },
+              { new: true }, // Return the updated document
+            );
+          }
+          // Item ID already exists, do nothing (optional: log a message)
+          console.log(`Item ID ${item._id} already exists in category ${category._id}`);
+          return category;
+        }
+        // Item not selected in this category, remove from items array
+        return Category.findByIdAndUpdate(
+          category._id,
+          { $pull: { items: item._id } },
+          { new: true }, // Return the updated document (optional)
+        );
+      });
+      res.redirect(updatedItem.url);
+    }
+  }),
+];

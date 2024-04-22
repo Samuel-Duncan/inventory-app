@@ -20,15 +20,12 @@ block content
       label Category: 
       div 
         for category in categories 
-          if category.checked 
-            input(type='checkbox', name='category', id=category._id, value=category._id, checked)
-          else
-            div(class="space-x-2")
-              input(type='checkbox', name='category', id=category._id, value=category._id)
-              label(for=category._id) &nbsp;#{category.name}
+          div(class="space-x-2")
+            input(type='checkbox', name='category', id=category._id, value=category._id, checked=category.checked)
+            label(for=category._id) &nbsp;#{category.name}
     button(type='submit') Submit
 
   if errors
     ul
       for error in errors
-        li!= error.msg
+        li(class="text-red-600")!= error.msg
