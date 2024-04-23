@@ -7,7 +7,7 @@ const Item = require('../models/item');
 // Display list of all Categories
 exports.category_list = asyncHandler(async (req, res, next) => {
   const allCategories = await Category.find({})
-    .sort({ name: -1 })
+    .sort({ name: 1 })
     .exec();
 
   res.render('category_list', {
@@ -126,10 +126,60 @@ exports.category_delete_post = asyncHandler(async (req, res, next) => {
 
 // Display Category update form on GET.
 exports.category_update_get = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Category update GET');
+  const category = await Category.findById(req.params.id).exec();
+
+  if (category === null) {
+    const err = new Error('Category not found');
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render('category_form', {
+    title: 'Update Category',
+    category,
+  });
 });
 
 // Handle Category update on POST.
-exports.category_update_post = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Category update POST');
-});
+exports.category_update_post = [
+  body('name')
+    .trim() // Trim leading/trailing whitespace
+    .notEmpty()
+    .withMessage('Category name is required.')
+    .escape(),
+  body('description')
+    .trim() // Trim leading/trailing whitespace
+    .optional()
+    .escape(), // Description is optional, but you can add validations if needed
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    const category = new Category({
+      name: req.body.name,
+      description: req.body.description,
+      _id: req.params.id,
+    });
+
+    if (!errors.isEmpty()) {
+      res.render('category_form', {
+        title: 'Create Category',
+        category,
+        errors: errors.array(),
+      });
+    } else {
+      // Check if Category with same name already exists
+      const categoryExists = await Category
+        .findOne({ name: req.body.name })
+        .collation({ locale: 'en', strength: 2 })
+        .exec();
+      if (categoryExists) {
+        // category exists redirect to its detail page
+        res.redirect(categoryExists.url);
+      } else {
+        const updatedCategory = await Category.findByIdAndUpdate(req.params.id, category, {});
+        res.redirect(updatedCategory.url);
+      }
+    }
+  }),
+];
