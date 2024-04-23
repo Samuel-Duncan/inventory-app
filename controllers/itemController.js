@@ -154,8 +154,10 @@ exports.item_delete_post = asyncHandler(async (req, res, next) => {
 
 // Display Item update form on GET.
 exports.item_update_get = asyncHandler(async (req, res, next) => {
-  const item = await Item.findById(req.params.id).populate('categories').exec();
-  const allCategories = await Category.find().sort({ name: 1 }).exec();
+  const [item, allCategories] = await Promise.all([
+    Item.findById(req.params.id).populate('categories').exec(),
+    Category.find().sort({ name: 1 }).exec(),
+  ]);
 
   if (item === null) {
     // no results
@@ -165,7 +167,7 @@ exports.item_update_get = asyncHandler(async (req, res, next) => {
   }
 
   allCategories.forEach((category) => {
-    category.checked = item.categories.includes(category._id) ? 'true' : undefined;
+    category.checked = category.items.includes(item._id) ? 'true' : undefined;
   });
   res.render('item_form', {
     title: 'Update Game',
