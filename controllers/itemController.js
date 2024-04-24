@@ -229,6 +229,8 @@ exports.item_update_post = [
     next();
   },
 
+  upload.array('images', 10),
+
   // Validate and sanitize fields
   body('name')
     .trim() // Trim leading/trailing whitespace
@@ -257,9 +259,49 @@ exports.item_update_post = [
     .withMessage('Item quantity is required.'),
   body('categories.*')
     .escape(),
+  body('images')
+    .optional() // Allow the field to be empty
+    .isArray() // Ensure it's an array
+    .withMessage('Images must be provided as an array.')
+    .custom((value) => {
+      if (!value || !value.length) return; // Skip if empty
+
+      for (const image of value) {
+        if (typeof image !== 'string' || !image.trim()) {
+          return Promise.reject('Invalid image URL in images array.');
+        }
+      }
+      return true; // All URLs are valid
+    }),
 
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
+
+    let existingImages = await Item.findById(req.params.id).select('images');
+
+    if (!existingImages) {
+      existingImages = []; // Set to empty array if item not found
+    } else {
+      existingImages = existingImages.images; // Extract the actual image URLs
+    }
+
+    const uploadedImages = [];
+
+    if (req.files) {
+    // ... existing upload logic (processing uploaded images)
+      for (const file of req.files) {
+        try {
+          const result = await cloudinary.uploader.upload(file.path);
+          uploadedImages.push({ url: result.secure_url });
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          errors.array().push({ msg: 'Error uploading image(s). Please try again.' });
+        }
+      }
+    }
+
+    // Combine existing and uploaded images
+    const combinedImages = [...existingImages, ...uploadedImages];
 
     // Create an Item object with escaped and trimmed data.
     const item = new Item({
@@ -269,6 +311,7 @@ exports.item_update_post = [
       quantity: req.body.quantity,
       categories: req.body.category,
       _id: req.params.id,
+      images: combinedImages,
     });
 
     if (!errors.isEmpty()) {
