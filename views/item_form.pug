@@ -3,7 +3,7 @@ extends layout
 block content 
   h1(class="text-4xl")= title 
 
-  form(method='POST')
+  form(method='POST' enctype="multipart/form-data")
     div(class="space-x-2")
       label(for='name') Name: 
       input#name(type='text', placeholder='Name of game' name='name' required value=(undefined===item ? '' : item.name))
@@ -23,6 +23,9 @@ block content
           div(class="space-x-2")
             input(type='checkbox', name='category', id=category._id, value=category._id, checked=category.checked)
             label(for=category._id) &nbsp;#{category.name}
+    div(class="space-x-2")  
+      label(for='images') Images:
+      input#images(type='file' name='images' multiple)
     button(type='submit') Submit
 
   if errors
