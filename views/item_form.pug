@@ -3,7 +3,7 @@ extends layout
 block content 
   h1(class="text-4xl")= title 
 
-  form(method='POST' enctype="multipart/form-data")
+  form(method='POST' enctype="multipart/form-data" class="space-y-2")
     div(class="space-x-2")
       label(for='name') Name: 
       input#name(type='text', placeholder='Name of game' name='name' required value=(undefined===item ? '' : item.name))
@@ -26,6 +26,13 @@ block content
     div(class="space-x-2")  
       label(for='images') Images:
       input#images(type='file' name='images' multiple)
+    if images 
+      div(class="flex gap-x-8")
+        for image in images
+          div(class="space-x-2")
+            img(src=image.url class="max-w-48")
+            input(type='checkbox', name='image', id=image._id, value=image._id)
+            label(for=image._id) &nbsp;Delete
     button(type='submit') Submit
 
   if errors

@@ -132,8 +132,6 @@ exports.item_create_post = [
       images: uploadedImages,
     });
 
-    console.log(item);
-
     if (!errors.isEmpty()) {
       const allCategories = await Category.find().sort({ name: 1 }).exec();
 
@@ -158,7 +156,7 @@ exports.item_create_post = [
       } else {
         await item.save();
         // Update relevant categories (after successful save)
-        const updatedCategories = await Promise.all(
+        await Promise.all(
           // eslint-disable-next-line no-return-await
           item.categories.map(async (categoryId) => await Category.findByIdAndUpdate(
             categoryId,
@@ -215,6 +213,7 @@ exports.item_update_get = asyncHandler(async (req, res, next) => {
   res.render('item_form', {
     title: 'Update Game',
     categories: allCategories,
+    images: item.images,
     item,
   });
 });
@@ -302,8 +301,12 @@ exports.item_update_post = [
       }
     }
 
-    // Combine existing and uploaded images
-    const combinedImages = [...existingImages, ...uploadedImages];
+    const imagesToKeep = existingImages.filter(
+      (image) => !req.body.image || !req.body.image.includes(image._id.toString()),
+    );
+
+    // Combine remaining existing and uploaded images
+    const combinedImages = [...imagesToKeep, ...uploadedImages];
 
     // Create an Item object with escaped and trimmed data.
     const item = new Item({
@@ -346,7 +349,6 @@ exports.item_update_post = [
             );
           }
           // Item ID already exists, do nothing (optional: log a message)
-          console.log(`Item ID ${item._id} already exists in category ${category._id}`);
           return category;
         }
         // Item not selected in this category, remove from items array
