@@ -266,6 +266,7 @@ exports.item_update_post = [
     .custom((value) => {
       if (!value || !value.length) return; // Skip if empty
 
+      // eslint-disable-next-line no-restricted-syntax
       for (const image of value) {
         if (typeof image !== 'string' || !image.trim()) {
           return Promise.reject('Invalid image URL in images array.');
@@ -289,6 +290,7 @@ exports.item_update_post = [
 
     if (req.files) {
     // ... existing upload logic (processing uploaded images)
+      // eslint-disable-next-line no-restricted-syntax
       for (const file of req.files) {
         try {
           const result = await cloudinary.uploader.upload(file.path);
