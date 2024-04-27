@@ -1,27 +1,36 @@
-// connection string: mongodb+srv://samueliraduncan:clkfbrSouPf5EihS@cluster0.uqtnf7y.mongodb.net/inventory_app_deployment?retryWrites=true&w=majority&appName=Cluster0
-
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const app = express();
-
-const mongoose = require('mongoose');
-
 // Require routers
+const compression = require('compression');
+const helmet = require('helmet');
+const RateLimit = require('express-rate-limit');
+const mongoose = require('mongoose');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const inventoryRouter = require('./routes/inventory');
 
+const app = express();
+
 // Set up mongoose connection
 mongoose.set('strictQuery', false);
-const mongoDB = 'mongodb+srv://samueliraduncan:clkfbrSouPf5EihS@cluster0.uqtnf7y.mongodb.net/inventory_app_deployment?retryWrites=true&w=majority&appName=Cluster0';
+const dev_db_url = 'mongodb+srv://samueliraduncan:clkfbrSouPf5EihS@cluster0.uqtnf7y.mongodb.net/inventory_app_deployment?retryWrites=true&w=majority&appName=Cluster0';
+const mongoDB = process.env.MONGODB_URI || dev_db_url;
+
 async function main() {
   await mongoose.connect(mongoDB);
 }
 main().catch((err) => console.log(err));
+
+const limiter = RateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 20,
+});
+
+app.use(compression());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
