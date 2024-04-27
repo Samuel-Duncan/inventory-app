@@ -17,7 +17,7 @@ const app = express();
 
 // Set up mongoose connection
 mongoose.set('strictQuery', false);
-const dev_db_url = 'mongodb+srv://samueliraduncan:clkfbrSouPf5EihS@cluster0.uqtnf7y.mongodb.net/inventory_app_production?retryWrites=true&w=majority&appName=Cluster0';
+const dev_db_url = 'mongodb+srv://samueliraduncan:clkfbrSouPf5EihS@cluster0.uqtnf7y.mongodb.net/inventory_app_deployment?retryWrites=true&w=majority&appName=Cluster0';
 const mongoDB = process.env.MONGODB_URI || dev_db_url;
 
 async function main() {
