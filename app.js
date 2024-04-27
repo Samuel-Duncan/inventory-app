@@ -30,6 +30,8 @@ const limiter = RateLimit({
   max: 20,
 });
 
+app.use(limiter);
+
 app.use(compression());
 
 // view engine setup
