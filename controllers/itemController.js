@@ -10,7 +10,7 @@ cloudinary.config({
   api_secret: 'woEF-W8MS7s2pDdyfl1K2ZJmS8U',
 });
 
-const upload = multer({ dest: '../public/uploads/' });
+const upload = multer({ dest: './uploads/' });
 const Item = require('../models/item');
 const Category = require('../models/category');
 
